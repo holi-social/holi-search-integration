@@ -28,7 +28,7 @@ class UserNameUpdatedEvent(UserPayload):
     event_version: str
 
     def __init__(self, event: CloudEvent):
-        message = event['data']['message']
+        message = event.data['message']
         if message['attributes']['eventType'] != 'UserNameUpdated':
             raise ValueError(f'Expected event of type UserNameUpdated, got {data['eventType']}')
         self.event_type = message['attributes']['eventType']
@@ -42,10 +42,10 @@ def process_user_name_updated_event(event: UserNameUpdatedEvent):
 def decode_message_data(data: str):
     return base64.b64decode(data)
 
-def process_event(event: CloudEvent):
-    attributes = event['data']['message']['attributes']
+def process_event(cloud_event: CloudEvent):
+    attributes = cloud_event.data['message']['attributes']
     if attributes['eventType'] == 'UserNameUpdated' and attributes['eventVersion'] == '1.0.0': # TODO backwards semver
-        process_user_name_updated_event(UserNameUpdatedEvent(event))
+        process_user_name_updated_event(UserNameUpdatedEvent(cloud_event))
 
 @functions_framework.cloud_event
 def process_message(cloud_event: CloudEvent):
