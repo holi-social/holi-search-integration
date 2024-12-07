@@ -16,8 +16,8 @@ install_test:
   stage: install_test
   image: "europe-north1-docker.pkg.dev/holi-shared/docker-hub-remote/python:3.12-slim"
   script:
-    - pip install -r src/requirements.txt
-    - pip install -r src/dev-requirements.txt
+    - pip install -r requirements.txt
+    - pip install -r dev-requirements.txt
     - pytest
   interruptible: true
 
@@ -38,10 +38,7 @@ install_test:
     ENVIRONMENT_ID: $CI_ENVIRONMENT_SLUG
   script:
     - apk add zip
-    - mkdir build
-    - cd src
-    - zip -r ../build/search_integration.zip ./*
-    - cd ..
+    - zip -r search_integration.zip requirements.zip dev-requirements.zip *.py
     - terraform/environments/scripts/create-or-update-env.sh "$ENVIRONMENT_ID" "$CI_COMMIT_SHA"
   interruptible: false
 
