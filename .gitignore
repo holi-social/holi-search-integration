@@ -1,3 +1,4 @@
 build/
 **/.terraform.lock.hcl
 **/.terraform/
+**/__pycache__/
