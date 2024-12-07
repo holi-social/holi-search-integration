@@ -39,10 +39,11 @@ resource "google_cloudfunctions2_function" "holi-search-integration" {
     max_instance_request_concurrency = 5
 
     environment_variables = {
-      ENVIRONMENT             = local.environment_name
-      TYPESENSE_HOST          = "t9vemwkibxajcorqp-1.a1.typesense.net"
-      TYPESENSE_PORT          = "443"
-      TYPESENSE_PROTOCOL      = "https"
+      ENVIRONMENT               = local.environment_name
+      TYPESENSE_HOST            = "t9vemwkibxajcorqp-1.a1.typesense.net"
+      TYPESENSE_PORT            = "443"
+      TYPESENSE_PROTOCOL        = "https"
+      TYPESENSE_COLLECTION_NAME = local.environment_name == "production" ? "production_all" : "staging_all"
     }
     vpc_connector                  = data.terraform_remote_state.holi_infra_state.outputs.vpc_access_connector_name
     vpc_connector_egress_settings  = "PRIVATE_RANGES_ONLY"

@@ -27,15 +27,15 @@ class UserPayload:
 
 
 @dataclass
-class UserEvent(UserPayload):
+class UserEvent:
     event_type: str
     event_version: str
+    user: UserPayload
 
     def __init__(self, cloud_event: CloudEvent):
         self.event_type = get_event_type(cloud_event)
         self.event_version = get_event_version(cloud_event)
-        data = cloud_event.data['message']['data']
-        super().__init__(json.loads(base64.b64decode(data)))
+        self.user = UserPayload(json.loads(base64.b64decode(cloud_event.data['message']['data'])))
 
 @dataclass
 class UserNameUpdatedEvent(UserEvent):
