@@ -1,3 +1,2 @@
 functions_framework==3.8.2
-pytest==8.3.4
 typesense==0.21.0
