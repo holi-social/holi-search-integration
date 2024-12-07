@@ -16,8 +16,8 @@ install_test:
   stage: install_test
   image: "europe-north1-docker.pkg.dev/holi-shared/docker-hub-remote/python:3.12-slim"
   script:
-    - pip install -r requirements.txt
-    - pip install -r dev-requirements.txt
+    - pip install -r src/requirements.txt
+    - pip install -r src/dev-requirements.txt
     - pytest
   interruptible: true
   artifacts:
