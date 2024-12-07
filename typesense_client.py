@@ -1,3 +1,5 @@
+import os
+
 from typesense.client import Client
 
 # thin wrapper to simplify main and testing code
