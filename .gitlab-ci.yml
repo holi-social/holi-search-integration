@@ -38,7 +38,10 @@ install_test:
     ENVIRONMENT_ID: $CI_ENVIRONMENT_SLUG
   script:
     - apk add zip
-    - cd src/ && zip -r ../build/search_integration.zip ./*; cd ../
+    - mkdir build
+    - cd src
+    - zip -r ../build/search_integration.zip ./*
+    - cd ..
     - terraform/environments/scripts/create-or-update-env.sh "$ENVIRONMENT_ID" "$CI_COMMIT_SHA"
   interruptible: false
 
