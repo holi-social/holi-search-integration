@@ -1,53 +1,23 @@
-import base64
-import json
-
 import functions_framework
 from cloudevents.http.event import CloudEvent
-from dataclasses import dataclass
-
-@dataclass
-class UserPayload:
-    id: str
-    name: str
-    email: str
-    identity: str
-    avatar: str
-
-    def __init__(self, data: dict):
-        print(f"UserPayload: {data}")
-        self.id = data['user']['id']
-        self.name = data['user']['name']
-        self.email = data['user']['email']
-        self.identity = data['user']['identity']
-        self.avatar = data['user']['avatar']
-
-
-@dataclass
-class UserNameUpdatedEvent(UserPayload):
-    event_type: str
-    event_version: str
-
-    def __init__(self, event: CloudEvent):
-        message = event.data['message']
-        if message['attributes']['eventType'] != 'UserNameUpdated':
-            raise ValueError(f'Expected event of type UserNameUpdated, got {data['eventType']}')
-        self.event_type = message['attributes']['eventType']
-        self.event_version = message['attributes']['eventVersion']
-        super().__init__(json.loads(decode_message_data(message['data'])))
-
+from events import UserNameUpdatedEvent, get_event_type, get_event_version, UserDeletedEvent
+from dataclasses import asdict
 
 def process_user_name_updated_event(event: UserNameUpdatedEvent):
-    print(f'process_user_name_updated_event: {event}')
+    print(f'process_user_name_updated_event: {asdict(event)}')
 
-def decode_message_data(data: str):
-    return base64.b64decode(data)
+def process_user_deleted_event(event: UserDeletedEvent):
+    print(f'process_user_deleted_event: {asdict(event)}')
 
-def process_event(cloud_event: CloudEvent):
-    attributes = cloud_event.data['message']['attributes']
-    if attributes['eventType'] == 'UserNameUpdated' and attributes['eventVersion'] == '1.0.0': # TODO backwards semver
-        process_user_name_updated_event(UserNameUpdatedEvent(cloud_event))
+def process_event(event: CloudEvent):
+    type_version = (get_event_type(event), get_event_version(event))
+    match type_version:
+        case ('UserNameUpdated', '1.0.0'):
+            return process_user_name_updated_event(UserNameUpdatedEvent(event))
+        case ('UserDeleted', '1.0.0'):
+            return process_user_deleted_event(UserDeletedEvent(event))
 
 @functions_framework.cloud_event
-def process_message(cloud_event: CloudEvent):
-    print(f"Received message: {cloud_event}")
-    process_event(cloud_event)
+def process_message(event: CloudEvent):
+    #print(f"Received message: {event}")
+    process_event(event)
