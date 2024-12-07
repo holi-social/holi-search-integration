@@ -20,9 +20,6 @@ install_test:
     - pip install -r src/dev-requirements.txt
     - pytest
   interruptible: true
-  artifacts:
-    paths:
-      - build/search_integration.zip
 
 .deploy:
   stage: "deploy"
