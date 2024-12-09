@@ -12,6 +12,7 @@ def process_user_name_updated_event(client: TypesenseClient, event: UserNameUpda
     document = {
         'id': f'profile_{event.user.id}',
         'type': 'profile',
+        'volunteering_id': event.user.id,  # TODO remove after dropping column from Typesense
         'title_de': event.user.name,
         'title_en': event.user.name,
         'description_de': None,  # TODO add on sending side
