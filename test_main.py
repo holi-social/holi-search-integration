@@ -1,10 +1,10 @@
 import base64
 import json
-
 from unittest.mock import patch
 
-from cloudevents.http import CloudEvent
+# noinspection PyPackageRequirements
 from cloudevents.http.event import CloudEvent
+
 from main import process_event
 
 attributes = {
@@ -22,6 +22,14 @@ user_payload = {
     'email': 'daniel@holi.team',
     'identity': 'danielholi.team',
     'avatar': 'https://ik.imagekit.io/holi/_DEV_/avatar/149a3d29-a0da-4f52-8e1c-660376b7084b_yv31UW7lD0.jpg',
+}
+
+space_payload = {
+    'id': '149a3d29-a0da-4f52-8e1c-660376b7084b',
+    'name': 'Daniels Space',
+    'slug': 'daniels-space',
+    'avatar': 'https://ik.imagekit.io/holi/_DEV_/avatar/149a3d29-a0da-4f52-8e1c-660376b7084b_yv31UW7lD0.jpg',
+    'avatarDefaultColor': 'ffffff',
 }
 
 def message_data(event_type, event_version, data):
@@ -46,10 +54,10 @@ def test_user_name_updated(mock_client):
         'type': 'profile',
         'title_de': user_payload['name'],
         'title_en': user_payload['name'],
-        'description_de': None,  # TODO add on sending side
-        'description_en': None,  # TODO add on sending side
-        'location': None,  # TODO add on sending side
-        'location_lat_lng': None,  # TODO add on sending side
+        'description_de': None,
+        'description_en': None,
+        'location': None,
+        'location_lat_lng': None,
         'image_url': user_payload['avatar'],
         'link_locators': {
             'profile': user_payload['id'],
@@ -61,5 +69,40 @@ def test_user_deleted(mock_client):
     process_event(mock_client, CloudEvent(attributes, message_data('UserDeleted', '1.0.0', {'user': user_payload})))
     mock_client.delete.assert_called_with(f"profile_{user_payload['id']}")
 
-if __name__ == '__main__':
-    process_event()
+# noinspection DuplicatedCode
+@patch('typesense.client.Client')
+def test_space_created(mock_client):
+    process_event(mock_client, CloudEvent(attributes, message_data('SpaceCreated', '1.0.0', {'space': space_payload})))
+    mock_client.upsert.assert_called_with({
+        'id': f'space_{space_payload['id']}',
+        'type': 'space',
+        'title_de': space_payload['name'],
+        'title_en': space_payload['name'],
+        'description_de': None,
+        'description_en': None,
+        'location': None,
+        'location_lat_lng': None,
+        'image_url': space_payload['avatar'],
+        'link_locators': {
+            'space': space_payload['slug'],
+        }
+    })
+
+# noinspection DuplicatedCode
+@patch('typesense.client.Client')
+def test_space_updated(mock_client):
+    process_event(mock_client, CloudEvent(attributes, message_data('SpaceUpdated', '1.0.0', {'space': space_payload})))
+    mock_client.upsert.assert_called_with({
+        'id': f'space_{space_payload['id']}',
+        'type': 'space',
+        'title_de': space_payload['name'],
+        'title_en': space_payload['name'],
+        'description_de': None,
+        'description_en': None,
+        'location': None,
+        'location_lat_lng': None,
+        'image_url': space_payload['avatar'],
+        'link_locators': {
+            'space': space_payload['slug'],
+        }
+    })
