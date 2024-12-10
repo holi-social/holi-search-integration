@@ -1,8 +1,11 @@
 import base64
 import json
 
+# noinspection PyPackageRequirements
 from cloudevents.http.event import CloudEvent
 from dataclasses import dataclass
+
+from typing import Any, TypedDict, Literal
 
 def get_event_type(cloud_event: CloudEvent) -> str:
     return cloud_event.data['message']['attributes']['eventType']
@@ -51,6 +54,22 @@ class UserNameUpdatedEvent(UserEvent):
         _validate_event_type(cloud_event, 'UserNameUpdated')
         super().__init__(cloud_event)
 
+    def as_typesense_document(self) -> object:
+        return {
+            'id': f'profile_{self.user.id}',
+            'type': 'profile',
+            'title_de': self.user.name,
+            'title_en': self.user.name,
+            'description_de': None,  # TODO add on sending side
+            'description_en': None,  # TODO add on sending side
+            'location': None,  # TODO add on sending side
+            'location_lat_lng': None,  # TODO add on sending side
+            'image_url': self.user.avatar,
+            'link_locators': {
+                'profile': self.user.id
+            }
+        }
+
 @dataclass
 class UserDeletedEvent(UserEvent):
     def __init__(self, cloud_event: CloudEvent):
@@ -82,6 +101,22 @@ class SpaceEvent:
         self.event_type = get_event_type(cloud_event)
         self.event_version = get_event_version(cloud_event)
         self.space = SpacePayload(json.loads(base64.b64decode(cloud_event.data['message']['data'])))
+
+    def as_typesense_document(self) -> object:
+        return {
+            'id': f'space_{self.space.id}',
+            'type': 'space',
+            'title_de': self.space.name,
+            'title_en': self.space.name,
+            'description_de': None,  # TODO add on sending side
+            'description_en': None,  # TODO add on sending side
+            'location': None,
+            'location_lat_lng': None,
+            'image_url': self.space.avatar,
+            'link_locators': {
+                'space': self.space.slug
+            }
+        }
 
 @dataclass
 class SpaceCreatedEvent(SpaceEvent):

@@ -15,21 +15,7 @@ logger = getLogger(__name__)
 
 def process_user_name_updated_event(client: TypesenseClient, event: UserNameUpdatedEvent):
     logger.debug(f'Processing {event}')
-    document = {
-        'id': f'profile_{event.user.id}',
-        'type': 'profile',
-        'title_de': event.user.name,
-        'title_en': event.user.name,
-        'description_de': None,  # TODO add on sending side
-        'description_en': None,  # TODO add on sending side
-        'location': None,  # TODO add on sending side
-        'location_lat_lng': None,  # TODO add on sending side
-        'image_url': event.user.avatar,
-        'link_locators': {
-            'profile': event.user.id
-        }
-    }
-    client.upsert(document)
+    client.upsert(event.as_typesense_document())
     logger.info(f'Upserted user {event.user.id} in Typesense')
 
 def process_user_deleted_event(client: TypesenseClient, event: UserDeletedEvent):
@@ -39,21 +25,7 @@ def process_user_deleted_event(client: TypesenseClient, event: UserDeletedEvent)
 
 def process_space_upserting_event(client: TypesenseClient, event: Union[SpaceCreatedEvent, SpaceUpdatedEvent]):
     logger.debug(f'Processing {event}')
-    document = {
-        'id': f'space_{event.space.id}',
-        'type': 'space',
-        'title_de': event.space.name,
-        'title_en': event.space.name,
-        'description_de': None,  # TODO add on sending side
-        'description_en': None,  # TODO add on sending side
-        'location': None,
-        'location_lat_lng': None,
-        'image_url': event.space.avatar,
-        'link_locators': {
-            'space': event.space.slug
-        }
-    }
-    client.upsert(document)
+    client.upsert(event.as_typesense_document())
     logger.info(f'Upserted space {event.space.id} in Typesense')
 
 def process_space_deleted_event(client: TypesenseClient, event: SpaceDeletedEvent):
@@ -82,6 +54,9 @@ def process_event(client: TypesenseClient, event: CloudEvent):
             process_space_deleted_event(client, SpaceDeletedEvent(event))
             pass
         case (eventType, eventVersion):
+            # UserEmailUpdated: no need to process, it is sufficient to handle UserNameUpdated because this is emitted
+            # during signup and search should not display email addresses (PII)
+            # All other events are assumed to (currently) not be of interest in search
             logger.debug(f'Ignoring {eventType} ({eventVersion}) event.')
             pass
 
