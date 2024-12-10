@@ -44,7 +44,6 @@ def test_user_name_updated(mock_client):
     mock_client.upsert.assert_called_with({
         'id': f'profile_{user_payload["id"]}',
         'type': 'profile',
-        'volunteering_id': user_payload["id"],  # TODO remove after dropping column from Typesense
         'title_de': user_payload['name'],
         'title_en': user_payload['name'],
         'description_de': None,  # TODO add on sending side

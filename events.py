@@ -38,7 +38,7 @@ class UserEvent:
         self.user = UserPayload(json.loads(base64.b64decode(cloud_event.data['message']['data'])))
 
     def __str__(self):
-        return f'{type(self).__name__}(id="{self.id}",name="{self.name}",email="***",identity="{self.identity}",avatar="{self.avatar}")'
+        return f'{type(self).__name__}(id="{self.user.id}",name="{self.user.name}",email="***",identity="{self.user.identity}",avatar="{self.user.avatar}")'
 
 @dataclass
 class UserNameUpdatedEvent(UserEvent):

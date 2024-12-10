@@ -7,12 +7,15 @@ from cloudevents.http.event import CloudEvent
 from events import UserNameUpdatedEvent, get_event_type, get_event_version, UserDeletedEvent
 from typesense_client import TypesenseClient
 
+from logging import getLogger
+
+logger = getLogger(__name__)
+
 def process_user_name_updated_event(client: TypesenseClient, event: UserNameUpdatedEvent):
-    print(f'process_user_name_updated_event: {asdict(event)}')
+    logger.debug(f'Processing {event}')
     document = {
         'id': f'profile_{event.user.id}',
         'type': 'profile',
-        'volunteering_id': event.user.id,  # TODO remove after dropping column from Typesense
         'title_de': event.user.name,
         'title_en': event.user.name,
         'description_de': None,  # TODO add on sending side
@@ -24,13 +27,13 @@ def process_user_name_updated_event(client: TypesenseClient, event: UserNameUpda
             'profile': event.user.id
         }
     }
-    response = client.upsert(document)
-    print(f'process_user_name_updated_event: {response}')
+    client.upsert(document)
+    logger.info(f'Updated user {event.user.id} in Typesense')
 
 def process_user_deleted_event(client: TypesenseClient, event: UserDeletedEvent):
-    print(f'process_user_deleted_event: {asdict(event)}')
-    response = client.delete(f"profile_{event.user.id}")
-    print(f'process_user_deleted_event response: {response}')
+    logger.debug(f'Processing {event}')
+    client.delete(f"profile_{event.user.id}")
+    logger.info(f'Deleted user {event.user.id} from Typesense')
 
 def process_event(client: TypesenseClient, event: CloudEvent):
     type_version = (get_event_type(event), get_event_version(event))
@@ -39,8 +42,29 @@ def process_event(client: TypesenseClient, event: CloudEvent):
             process_user_name_updated_event(client, UserNameUpdatedEvent(event))
         case ('UserDeleted', '1.0.0'):
             process_user_deleted_event(client, UserDeletedEvent(event))
+        case ('UserEmailUpdated', '1.0.0'):
+            # no need to process, it is sufficient to handle UserNameUpdated
+            logger.debug('Ignoring UserEmailUpdated event')
+            pass
+        case ('SpaceCreated', '1.0.0'):
+            # TODO implement
+            logger.debug('Ignoring SpaceCreated event (yet to be implemented)')
+            pass
+        case ('SpaceUpdated', '1.0.0'):
+            # TODO implement
+            logger.debug('Ignoring SpaceCreated event (yet to be implemented)')
+            pass
+        case ('SpaceDeleted', '1.0.0'):
+            # TODO implement
+            logger.debug('Ignoring SpaceCreated event (yet to be implemented)')
+            pass
+        case (eventType, eventVersion):
+            logger.debug(f'Ignoring {eventType} ({eventVersion}) event.')
+            pass
 
 @functions_framework.cloud_event
 def process_message(event: CloudEvent):
     client = TypesenseClient()
     process_event(client, event)
+
+# TODO ensure that UserUpdated or similar is emitted on updates of fields we're interested in
