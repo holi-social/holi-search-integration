@@ -1,11 +1,10 @@
 import base64
 import json
+from dataclasses import dataclass
 
 # noinspection PyPackageRequirements
 from cloudevents.http.event import CloudEvent
-from dataclasses import dataclass
 
-from typing import Any, TypedDict, Literal
 
 def get_event_type(cloud_event: CloudEvent) -> str:
     return cloud_event.data['message']['attributes']['eventType']
@@ -25,6 +24,8 @@ class UserPayload:
     email: str
     identity: str
     avatar: str
+    about_me: str
+    location: str
 
     def __init__(self, data: dict):
         self.id = data['user']['id']
@@ -32,6 +33,8 @@ class UserPayload:
         self.email = data['user']['email']
         self.identity = data['user']['identity']
         self.avatar = data['user']['avatar']
+        self.about_me = data['user']['aboutMe']
+        self.location = data['user']['location']
 
 
 @dataclass
@@ -60,10 +63,10 @@ class UserNameUpdatedEvent(UserEvent):
             'type': 'profile',
             'title_de': self.user.name,
             'title_en': self.user.name,
-            'description_de': None,  # TODO add on sending side
-            'description_en': None,  # TODO add on sending side
-            'location': None,  # TODO add on sending side
-            'location_lat_lng': None,  # TODO add on sending side
+            'description_de': self.user.about_me,
+            'description_en': self.user.about_me,
+            'location': self.user.location,
+            'location_lat_lng': None,  # TODO maybe enrich?
             'image_url': self.user.avatar,
             'link_locators': {
                 'profile': self.user.id
@@ -77,12 +80,20 @@ class UserDeletedEvent(UserEvent):
         super().__init__(cloud_event)
 
 @dataclass
+class LatLng:
+    latitude: float
+    longitude: float
+
+@dataclass
 class SpacePayload:
     id: str
     name: str
     slug: str
     avatar: str
     avatar_default_color: str
+    description: str
+    location: str
+    location_lat_lng: LatLng
 
     def __init__(self, data: dict):
         self.id = data['space']['id']
@@ -90,6 +101,10 @@ class SpacePayload:
         self.slug = data['space']['slug']
         self.avatar = data['space']['avatar']
         self.avatar_default_color = data['space']['avatarDefaultColor']
+        self.description = data['space']['description']
+        self.location = data['space']['location']
+        contains_lat_lng = data['space']['locationLatLng'] is not None and data['space']['locationLatLng']['latitude'] is not None and data['space']['locationLatLng']['longitude'] is not None
+        self.location_lat_lng = LatLng(data['space']['locationLatLng'].get('latitude'), data['space']['locationLatLng'].get('longitude')) if contains_lat_lng else None
 
 @dataclass
 class SpaceEvent:
@@ -108,10 +123,10 @@ class SpaceEvent:
             'type': 'space',
             'title_de': self.space.name,
             'title_en': self.space.name,
-            'description_de': None,  # TODO add on sending side
-            'description_en': None,  # TODO add on sending side
-            'location': None,
-            'location_lat_lng': None,
+            'description_de': self.space.description,
+            'description_en': self.space.description,
+            'location': self.space.location,
+            'location_lat_lng': [self.space.location_lat_lng.latitude, self.space.location_lat_lng.longitude] if self.space.location_lat_lng is not None else None,
             'image_url': self.space.avatar,
             'link_locators': {
                 'space': self.space.slug

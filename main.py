@@ -1,4 +1,5 @@
 import os
+import re
 import functions_framework
 from typing import Union
 
@@ -13,6 +14,8 @@ from typesense_client import TypesenseClient
 from logging import getLogger
 
 logger = getLogger(__name__)
+
+SEMVER_1XX_SERIES = r"^1\.\d+\.\d+$"
 
 def process_user_name_updated_event(client: TypesenseClient, event: UserNameUpdatedEvent):
     logger.debug(f'Processing {event}')
@@ -41,23 +44,23 @@ def process_space_deleted_event(client: TypesenseClient, event: SpaceDeletedEven
     logger.info(f'Deleted space {event.space.id} in Typesense')
 
 def process_event(client: TypesenseClient, event: CloudEvent):
-    type_version = (get_event_type(event), get_event_version(event))
+    type_version = (get_event_type(event), re.match(SEMVER_1XX_SERIES, get_event_version(event)) is not None)
     match type_version:
-        case ('UserNameUpdated', '1.0.0'):
+        case ('UserNameUpdated', True):
             process_user_name_updated_event(client, UserNameUpdatedEvent(event))
-        case ('UserDeleted', '1.0.0'):
+        case ('UserDeleted', True):
             process_user_deleted_event(client, UserDeletedEvent(event))
-        case ('UserEmailUpdated', '1.0.0'):
+        case ('UserEmailUpdated', True):
             # no need to process, it is sufficient to handle UserNameUpdated
             logger.debug('Ignoring UserEmailUpdated event')
             pass
-        case ('SpaceCreated', '1.0.0'):
+        case ('SpaceCreated', True):
             process_space_upserting_event(client, SpaceCreatedEvent(event))
             pass
-        case ('SpaceUpdated', '1.0.0'):
+        case ('SpaceUpdated', True):
             process_space_upserting_event(client, SpaceUpdatedEvent(event))
             pass
-        case ('SpaceDeleted', '1.0.0'):
+        case ('SpaceDeleted', True):
             process_space_deleted_event(client, SpaceDeletedEvent(event))
             pass
         case (eventType, eventVersion):
