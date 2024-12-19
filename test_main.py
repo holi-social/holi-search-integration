@@ -22,6 +22,8 @@ user_payload = {
     'email': 'daniel@holi.team',
     'identity': 'danielholi.team',
     'avatar': 'https://ik.imagekit.io/holi/_DEV_/avatar/149a3d29-a0da-4f52-8e1c-660376b7084b_yv31UW7lD0.jpg',
+    'aboutMe': 'Daniel about himself',
+    'location': 'Klitmøller, Denmark'
 }
 
 space_payload = {
@@ -30,6 +32,12 @@ space_payload = {
     'slug': 'daniels-space',
     'avatar': 'https://ik.imagekit.io/holi/_DEV_/avatar/149a3d29-a0da-4f52-8e1c-660376b7084b_yv31UW7lD0.jpg',
     'avatarDefaultColor': 'ffffff',
+    'description': 'This is Daniels Space',
+    'location': 'Klitmøller, Denmark',
+    'locationLatLng': {
+        'latitude': 57.0393497,
+        'longitude': 8.474686,
+    }
 }
 
 def message_data(event_type, event_version, data):
@@ -54,9 +62,9 @@ def test_user_name_updated(mock_client):
         'type': 'profile',
         'title_de': user_payload['name'],
         'title_en': user_payload['name'],
-        'description_de': None,
-        'description_en': None,
-        'location': None,
+        'description_de': user_payload['aboutMe'],
+        'description_en': user_payload['aboutMe'],
+        'location': user_payload['location'],
         'location_lat_lng': None,
         'image_url': user_payload['avatar'],
         'link_locators': {
@@ -78,10 +86,10 @@ def test_space_created(mock_client):
         'type': 'space',
         'title_de': space_payload['name'],
         'title_en': space_payload['name'],
-        'description_de': None,
-        'description_en': None,
-        'location': None,
-        'location_lat_lng': None,
+        'description_de': space_payload['description'],
+        'description_en': space_payload['description'],
+        'location': space_payload['location'],
+        'location_lat_lng': [space_payload['locationLatLng']['latitude'], space_payload['locationLatLng']['longitude']],
         'image_url': space_payload['avatar'],
         'link_locators': {
             'space': space_payload['slug'],
@@ -97,10 +105,10 @@ def test_space_updated(mock_client):
         'type': 'space',
         'title_de': space_payload['name'],
         'title_en': space_payload['name'],
-        'description_de': None,
-        'description_en': None,
-        'location': None,
-        'location_lat_lng': None,
+        'description_de': space_payload['description'],
+        'description_en': space_payload['description'],
+        'location': space_payload['location'],
+        'location_lat_lng': [space_payload['locationLatLng']['latitude'], space_payload['locationLatLng']['longitude']],
         'image_url': space_payload['avatar'],
         'link_locators': {
             'space': space_payload['slug'],
