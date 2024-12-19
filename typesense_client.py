@@ -2,24 +2,28 @@ import os
 
 from typesense.client import Client
 
+
 class TypesenseClient(object):
     """
     Thin wrapper around the Typesense client to simplify call site and testing/mocking code.
     """
+
     client: Client
 
     def __init__(self):
-        self.client = Client({
-            "api_key": (os.getenv("TYPESENSE_ADMIN_API_KEY")),
-            "nodes": [
-                {
-                    "host": (os.getenv("TYPESENSE_HOST")),
-                    "port": (os.getenv("TYPESENSE_PORT")),
-                    "protocol": (os.getenv("TYPESENSE_PROTOCOL")),
-                }
-            ],
-            "connection_timeout_seconds": 60 * 60,
-        })
+        self.client = Client(
+            {
+                "api_key": (os.getenv("TYPESENSE_ADMIN_API_KEY")),
+                "nodes": [
+                    {
+                        "host": (os.getenv("TYPESENSE_HOST")),
+                        "port": (os.getenv("TYPESENSE_PORT")),
+                        "protocol": (os.getenv("TYPESENSE_PROTOCOL")),
+                    }
+                ],
+                "connection_timeout_seconds": 60 * 60,
+            }
+        )
 
     def upsert(self, document) -> object:
         """
