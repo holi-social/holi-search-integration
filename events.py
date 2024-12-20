@@ -31,13 +31,13 @@ class UserPayload:
     location: str
 
     def __init__(self, data: dict):
-        self.id = data["user"]["id"]
-        self.name = data["user"]["name"]
-        self.email = data["user"]["email"]
-        self.identity = data["user"]["identity"]
-        self.avatar = data["user"]["avatar"]
-        self.about_me = data["user"]["aboutMe"]
-        self.location = data["user"]["location"]
+        self.id = data["user"].get("id")
+        self.name = data["user"].get("name")
+        self.email = data["user"].get("email")
+        self.identity = data["user"].get("identity")
+        self.avatar = data["user"].get("avatar")
+        self.about_me = data["user"].get("aboutMe")
+        self.location = data["user"].get("location")
 
 
 @dataclass
@@ -101,20 +101,20 @@ class SpacePayload:
     location_lat_lng: LatLng
 
     def __init__(self, data: dict):
-        self.id = data["space"]["id"]
-        self.name = data["space"]["name"]
-        self.slug = data["space"]["slug"]
-        self.avatar = data["space"]["avatar"]
-        self.avatar_default_color = data["space"]["avatarDefaultColor"]
-        self.description = data["space"]["description"]
-        self.location = data["space"]["location"]
+        self.id = data["space"].get("id")
+        self.name = data["space"].get("name")
+        self.slug = data["space"].get("slug")
+        self.avatar = data["space"].get("avatar")
+        self.avatar_default_color = data["space"].get("avatarDefaultColor")
+        self.description = data["space"].get("description")
+        self.location = data["space"].get("location")
         contains_lat_lng = (
-            data["space"]["locationLatLng"] is not None
-            and data["space"]["locationLatLng"]["latitude"] is not None
-            and data["space"]["locationLatLng"]["longitude"] is not None
+            data["space"].get("locationLatLng") is not None
+            and data["space"].get("locationLatLng")["latitude"] is not None
+            and data["space"].get("locationLatLng")["longitude"] is not None
         )
         self.location_lat_lng = (
-            LatLng(data["space"]["locationLatLng"].get("latitude"), data["space"]["locationLatLng"].get("longitude"))
+            LatLng(data["space"].get("locationLatLng").get("latitude"), data["space"].get("locationLatLng").get("longitude"))
             if contains_lat_lng
             else None
         )
