@@ -31,6 +31,10 @@ resource "google_monitoring_alert_policy" "pubsub_unacked_messages" {
     }
   }
 
+  alert_strategy {
+    auto_close = "300s"
+  }
+
   notification_channels = [local.environment_name == "production" ? data.terraform_remote_state.holi_infra_monitoring_state.outputs.monitoring_notification_channel_rocket_chat_matching_data_production_id : data.terraform_remote_state.holi_infra_monitoring_state.outputs.monitoring_notification_channel_rocket_chat_matching_data_staging_id]
 
   documentation {
