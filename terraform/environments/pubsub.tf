@@ -21,7 +21,7 @@ resource "google_pubsub_subscription" "holi-search-integration-okuna-sub" {
 
 resource "google_monitoring_alert_policy" "pubsub_unacked_messages" {
   project = data.terraform_remote_state.holi_infra_state.outputs.shared_project_id
-  display_name = "PubSub Unacked Messages Alert"
+  display_name = "MATCHING: PubSub Unacked Messages Alert (${local.environment_name}) / subscription_id='${google_pubsub_subscription.holi-search-integration-okuna-sub.name}'"
   combiner     = "OR"
   conditions {
     display_name = "Unacked messages condition"
