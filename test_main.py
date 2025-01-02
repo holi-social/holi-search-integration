@@ -31,7 +31,6 @@ space_payload = {
     "name": "Daniels Space",
     "slug": "daniels-space",
     "avatar": "https://ik.imagekit.io/holi/_DEV_/avatar/149a3d29-a0da-4f52-8e1c-660376b7084b_yv31UW7lD0.jpg",
-    "avatarDefaultColor": "ffffff",
     "description": "This is Daniels Space",
     "location": "Klitmøller, Denmark",
     "locationLatLng": {

@@ -95,7 +95,6 @@ class SpacePayload:
     name: str
     slug: str
     avatar: str
-    avatar_default_color: str
     description: str
     location: str
     location_lat_lng: LatLng
@@ -105,7 +104,6 @@ class SpacePayload:
         self.name = data["space"].get("name")
         self.slug = data["space"].get("slug")
         self.avatar = data["space"].get("avatar")
-        self.avatar_default_color = data["space"].get("avatarDefaultColor")
         self.description = data["space"].get("description")
         self.location = data["space"].get("location")
         contains_lat_lng = (
