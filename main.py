@@ -65,6 +65,7 @@ def process_event(client: TypesenseClient, event: CloudEvent) -> None:
             return None
         case ("UserEmailUpdated", True):
             # no need to process, it is sufficient to handle UserUpdated
+            # also, no PII must be in Typesense as there's no authentication
             logger.debug("Ignoring UserEmailUpdated event")
             return None
         case ("SpaceCreated", True):
@@ -74,9 +75,7 @@ def process_event(client: TypesenseClient, event: CloudEvent) -> None:
         case ("SpaceDeleted", True):
             return process_space_deleted_event(client, SpaceDeletedEvent(event))
         case (eventType, eventVersion):
-            # UserEmailUpdated: no need to process, it is sufficient to handle UserUpdated and search should not
-            # display email addresses (PII)
-            # All other events are assumed to (currently) not be of interest in search
+            # other events than handled above are assumed to (currently) not be of interest in search
             logger.debug(f"Ignoring {eventType} ({eventVersion}) event.")
             return
 
