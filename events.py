@@ -56,9 +56,9 @@ class UserEvent:
 
 
 @dataclass
-class UserNameUpdatedEvent(UserEvent):
+class UserUpdatedEvent(UserEvent):
     def __init__(self, cloud_event: CloudEvent):
-        _validate_event_type(cloud_event, "UserNameUpdated")
+        _validate_event_type(cloud_event, "UserUpdated")
         super().__init__(cloud_event)
 
     def as_typesense_document(self) -> object:
