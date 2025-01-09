@@ -56,9 +56,9 @@ def message_data(event_type, event_version, data):
 
 
 @patch("typesense.client.Client")
-def test_user_name_updated(mock_client):
+def test_user_updated(mock_client):
     process_event(
-        mock_client, CloudEvent(attributes, message_data("UserNameUpdated", "1.0.0", {"user": user_payload}))
+        mock_client, CloudEvent(attributes, message_data("UserUpdated", "1.1.0", {"user": user_payload}))
     )
     mock_client.upsert.assert_called_with(
         {
@@ -77,17 +77,32 @@ def test_user_name_updated(mock_client):
         }
     )
 
+@patch("typesense.client.Client")
+def test_user_name_updated_ignored(mock_client):
+    process_event(
+        mock_client, CloudEvent(attributes, message_data("UserNameUpdated", "1.1.0", {"user": user_payload}))
+    )
+    mock_client.upsert.assert_not_called()
+
+
+@patch("typesense.client.Client")
+def test_user_email_updated_ignored(mock_client):
+    process_event(
+        mock_client, CloudEvent(attributes, message_data("UserEmailUpdated", "1.1.0", {"user": user_payload}))
+    )
+    mock_client.upsert.assert_not_called()
+
 
 @patch("typesense.client.Client")
 def test_user_deleted(mock_client):
-    process_event(mock_client, CloudEvent(attributes, message_data("UserDeleted", "1.0.0", {"user": user_payload})))
+    process_event(mock_client, CloudEvent(attributes, message_data("UserDeleted", "1.1.0", {"user": user_payload})))
     mock_client.delete.assert_called_with(f"profile_{user_payload['id']}")
 
 
 # noinspection DuplicatedCode
 @patch("typesense.client.Client")
 def test_space_created(mock_client):
-    process_event(mock_client, CloudEvent(attributes, message_data("SpaceCreated", "1.0.0", {"space": space_payload})))
+    process_event(mock_client, CloudEvent(attributes, message_data("SpaceCreated", "1.1.0", {"space": space_payload})))
     mock_client.upsert.assert_called_with(
         {
             "id": f'space_{space_payload['id']}',
@@ -112,7 +127,7 @@ def test_space_created(mock_client):
 # noinspection DuplicatedCode
 @patch("typesense.client.Client")
 def test_space_updated(mock_client):
-    process_event(mock_client, CloudEvent(attributes, message_data("SpaceUpdated", "1.0.0", {"space": space_payload})))
+    process_event(mock_client, CloudEvent(attributes, message_data("SpaceUpdated", "1.1.0", {"space": space_payload})))
     mock_client.upsert.assert_called_with(
         {
             "id": f'space_{space_payload['id']}',
