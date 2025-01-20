@@ -65,10 +65,7 @@ class UserUpdatedEvent(UserEvent):
         return {
             "id": f"profile_{self.user.id}",
             "type": "profile",
-            "title_de": self.user.name,
-            "title_en": self.user.name,
-            "description_de": self.user.about_me,
-            "description_en": self.user.about_me,
+            "user_full_name": self.user.name,
             "location": self.user.location,
             "location_lat_lng": None,  # TODO maybe enrich?
             "image_url": self.user.avatar,

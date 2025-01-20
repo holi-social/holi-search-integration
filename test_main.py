@@ -64,10 +64,7 @@ def test_user_updated(mock_client):
         {
             "id": f'profile_{user_payload["id"]}',
             "type": "profile",
-            "title_de": user_payload["name"],
-            "title_en": user_payload["name"],
-            "description_de": user_payload["aboutMe"],
-            "description_en": user_payload["aboutMe"],
+            "user_full_name": user_payload["name"],
             "location": user_payload["location"],
             "location_lat_lng": None,
             "image_url": user_payload["avatar"],
