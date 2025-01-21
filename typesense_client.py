@@ -2,6 +2,8 @@ import os
 
 from typesense.client import Client
 
+logger = getLogger(__name__)
+
 
 class TypesenseClient(object):
     """
@@ -32,7 +34,13 @@ class TypesenseClient(object):
         :param document: the document to upsert
         :return: deserialized JSON document
         """
-        return self.client.collections[os.getenv("TYPESENSE_COLLECTION_NAME")].documents.upsert(document)
+        try:
+            return self.client.collections[os.getenv("TYPESENSE_COLLECTION_NAME")].documents.upsert(document)
+        except Exception as e:
+            # typesense at this point should only contain public data so it is fine to log documents (no PII)
+            # if PII should be added later, this must be handled in the documents __str__ function
+            logger.error(f'Error upserting document: {document}')
+            raise e
 
     def delete(self, id: str) -> object:
         """
