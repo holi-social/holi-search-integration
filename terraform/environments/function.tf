@@ -8,7 +8,7 @@ resource "random_id" "main" {
 resource "google_storage_bucket_object" "function_source" {
   name   = "${random_id.main.hex}/search_integration.zip"
   bucket = data.terraform_remote_state.holi_infra_state.outputs.gcf_sources_upload_bucket_name
-  source = "../../build/search_integration.zip"
+  source = "../../search_integration.zip"
 }
 
 resource "google_cloudfunctions2_function" "holi-search-integration" {
@@ -39,10 +39,11 @@ resource "google_cloudfunctions2_function" "holi-search-integration" {
     max_instance_request_concurrency = 5
 
     environment_variables = {
-      ENVIRONMENT             = local.environment_name
-      TYPESENSE_HOST          = "t9vemwkibxajcorqp-1.a1.typesense.net"
-      TYPESENSE_PORT          = "443"
-      TYPESENSE_PROTOCOL      = "https"
+      ENVIRONMENT               = local.environment_name
+      TYPESENSE_HOST            = "t9vemwkibxajcorqp-1.a1.typesense.net"
+      TYPESENSE_PORT            = "443"
+      TYPESENSE_PROTOCOL        = "https"
+      TYPESENSE_COLLECTION_NAME = local.environment_name == "production" ? "holi_search_production" : "holi_search_staging"
     }
     vpc_connector                  = data.terraform_remote_state.holi_infra_state.outputs.vpc_access_connector_name
     vpc_connector_egress_settings  = "PRIVATE_RANGES_ONLY"
