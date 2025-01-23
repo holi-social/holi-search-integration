@@ -14,7 +14,7 @@ stages:
 
 install_test:
   stage: install_test
-  image: "europe-north1-docker.pkg.dev/holi-shared/docker-hub-remote/python:3.12-slim"
+  image: "europe-north1-docker.pkg.dev/holi-shared/docker-hub-remote/python:3.13-slim"
   script:
     - pip install -r requirements.txt
     - pip install -r dev-requirements.txt
@@ -24,7 +24,7 @@ install_test:
 .deploy:
   stage: "deploy"
   image:
-    name: "europe-north1-docker.pkg.dev/holi-shared/docker-hub-remote/hashicorp/terraform:1.10.1"
+    name: "europe-north1-docker.pkg.dev/holi-shared/docker-hub-remote/hashicorp/terraform:1.10.5"
     # default entrypoint is terraform command, but we want to run shell scripts
     entrypoint: ["/bin/sh", "-c"]
   artifacts:
