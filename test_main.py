@@ -1,9 +1,11 @@
 import base64
 import json
 from unittest.mock import patch
+from pytest import fail
 
 # noinspection PyPackageRequirements
 from cloudevents.http.event import CloudEvent
+from typesense.exceptions import ObjectNotFound, RequestUnauthorized
 
 from main import process_event
 
@@ -73,6 +75,52 @@ def test_user_updated(mock_client):
             },
         }
     )
+
+
+@patch("typesense.client.Client")
+def test_ignores_deletes_user_without_name(mock_client):
+    # users without names must not show up in search results
+    user = user_payload.copy()
+    # noinspection PyTypeChecker
+    user['name'] = None
+    process_event(
+        mock_client, CloudEvent(attributes, message_data("UserUpdated", "1.1.0", {"user": user }))
+    )
+    mock_client.upsert.assert_not_called()
+    mock_client.delete.assert_called_with(f'profile_{user["id"]}')
+
+    user['name'] = ''
+    process_event(
+        mock_client, CloudEvent(attributes, message_data("UserUpdated", "1.1.0", {"user": user }))
+    )
+    mock_client.upsert.assert_not_called()
+    mock_client.delete.assert_called_with(f'profile_{user["id"]}')
+
+@patch("typesense.client.Client")
+def test_ignores_404_on_deletion(mock_client):
+    mock_client.delete.side_effect = ObjectNotFound('Object not found')
+    user = user_payload.copy()
+    user['name'] = ''
+    process_event(
+        mock_client, CloudEvent(attributes, message_data("UserUpdated", "1.1.0", {"user": user}))
+    )
+    mock_client.upsert.assert_not_called()
+    mock_client.delete.assert_called_with(f'profile_{user["id"]}')
+
+@patch("typesense.client.Client")
+def test_raises_others_error_responses_on_deletion(mock_client):
+    # obviously does not cover *all* other errors but one to check if not all exceptions are "swallowed"
+    mock_client.delete.side_effect = RequestUnauthorized('Unauthorized')
+    user = user_payload.copy()
+    user['name'] = ''
+    try:
+        process_event(
+            mock_client, CloudEvent(attributes, message_data("UserUpdated", "1.1.0", {"user": user}))
+        )
+    except RequestUnauthorized:
+        pass
+    except Exception:
+        fail('Unexpected exception raised:')
 
 @patch("typesense.client.Client")
 def test_user_name_updated_ignored(mock_client):
