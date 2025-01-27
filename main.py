@@ -24,7 +24,13 @@ SEMVER_1XX_SERIES = r"^1\.\d+\.\d+$"
 
 def process_user_updated_event(client: TypesenseClient, event: UserUpdatedEvent) -> None:
     logger.debug(f"Processing {event}")
-    client.upsert(event.as_typesense_document())
+    if event.user.name is None or event.user.name.strip() == "":
+        try:
+            client.delete(f"profile_{event.user.id}")
+        except ObjectNotFound:
+            pass
+    else:
+        client.upsert(event.as_typesense_document())
     logger.info(f"Upserted user {event.user.id} in Typesense")
 
 
