@@ -104,6 +104,7 @@ def test_ignores_404_on_deletion(mock_client):
     process_event(
         mock_client, CloudEvent(attributes, message_data("UserUpdated", "1.1.0", {"user": user}))
     )
+    mock_client.upsert.assert_not_called()
     mock_client.delete.assert_called_with(f'profile_{user["id"]}')
 
 @patch("typesense.client.Client")
