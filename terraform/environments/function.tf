@@ -32,7 +32,7 @@ resource "google_cloudfunctions2_function" "holi-search-integration" {
 
   service_config {
     max_instance_count               = 1
-    min_instance_count               = local.environment_name == "production" ? 1 : 0
+    min_instance_count               = 0
     available_memory                 = "200Mi"
     timeout_seconds                  = 120
     available_cpu                    = 1
