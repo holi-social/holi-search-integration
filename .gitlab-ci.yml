@@ -9,8 +9,9 @@ default:
     - 1cpu-4gb
 
 stages:
-  - "install_test"
-  - "deploy"
+  - install_test
+  - deploy
+  - deploy_production
 
 install_test:
   stage: install_test
@@ -52,8 +53,10 @@ staging_deploy:
 
 production_deploy:
   extends: .deploy
+  stage: "deploy_production"
+  needs: ["staging_deploy"]
   variables:
     ENVIRONMENT_ID: 'production'
   only:
-    - production
+    - main
   resource_group: production
