@@ -2,3 +2,4 @@ build/
 **/.terraform.lock.hcl
 **/.terraform/
 **/__pycache__/
+/.gitlab-ci-local
