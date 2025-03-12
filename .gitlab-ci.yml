@@ -47,8 +47,9 @@ staging_deploy:
   extends: .deploy
   variables:
     ENVIRONMENT_ID: 'staging'
-  only:
-    - main
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: on_success
   resource_group: staging
 
 production_deploy:
@@ -57,6 +58,7 @@ production_deploy:
   needs: ["staging_deploy"]
   variables:
     ENVIRONMENT_ID: 'production'
-  only:
-    - main
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: on_success
   resource_group: production
