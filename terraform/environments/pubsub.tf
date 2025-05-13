@@ -20,13 +20,13 @@ resource "google_pubsub_subscription" "holi-search-integration-okuna-sub" {
 }
 
 resource "google_monitoring_alert_policy" "pubsub_unacked_messages" {
-  project = data.terraform_remote_state.holi_infra_state.outputs.shared_project_id
+  project      = data.terraform_remote_state.holi_infra_state.outputs.shared_project_id
   display_name = "MATCHING: PubSub Unacked Messages Alert (${local.environment_name}) / subscription_id='${google_pubsub_subscription.holi-search-integration-okuna-sub.name}'"
   combiner     = "OR"
   conditions {
     display_name = "Unacked messages condition"
     condition_prometheus_query_language {
-      query = "rate(pubsub_googleapis_com:subscription_oldest_unacked_message_age{subscription_id='${google_pubsub_subscription.holi-search-integration-okuna-sub.name}'}[5m]) >= 1"
+      query    = "rate(pubsub_googleapis_com:subscription_oldest_unacked_message_age{subscription_id='${google_pubsub_subscription.holi-search-integration-okuna-sub.name}'}[5m]) >= 1"
       duration = "300s"
     }
   }
@@ -35,10 +35,10 @@ resource "google_monitoring_alert_policy" "pubsub_unacked_messages" {
     auto_close = "300s"
   }
 
-  notification_channels = [local.environment_name == "production" ? data.terraform_remote_state.holi_infra_monitoring_state.outputs.monitoring_notification_channel_rocket_chat_matching_data_production_id : data.terraform_remote_state.holi_infra_monitoring_state.outputs.monitoring_notification_channel_rocket_chat_matching_data_staging_id]
+  notification_channels = [local.environment_name == "production" ? data.terraform_remote_state.holi_infra_monitoring_state.outputs.monitoring_notification_channel_slack_matching_data_production_id : data.terraform_remote_state.holi_infra_monitoring_state.outputs.monitoring_notification_channel_slack_matching_data_staging_id]
 
   documentation {
-    content = "Alert triggered when Pub/Sub subscription(s) (subscription_id='${google_pubsub_subscription.holi-search-integration-okuna-sub.name}') have unacknowledged messages for more than 5 minutes. Please check the cloud function deployment and logs to see if the subscriber works correctly."
+    content   = "Alert triggered when Pub/Sub subscription(s) (subscription_id='${google_pubsub_subscription.holi-search-integration-okuna-sub.name}') have unacknowledged messages for more than 5 minutes. Please check the cloud function deployment and logs to see if the subscriber works correctly."
     mime_type = "text/markdown"
   }
 }
